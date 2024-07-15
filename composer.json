@@ -1,5 +1,5 @@
 {
-    "name": "mezatsong/laravel-swagger-docs",
+    "name": "energon7/laravel-swagger-docs",
     "description": "Swagger docs generator for Laravel api",
     "type": "library",
     "keywords": ["laravel", "swagger", "docs", "generator"],
