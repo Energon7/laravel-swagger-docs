@@ -44,19 +44,16 @@ class BodyParametersGenerator implements ParametersGenerator {
         $schema = [];
 
         foreach ($this->rules as $parameter => $rule) {
-            try {
-                $parameterRules = $this->splitRules($rule);
-                $nameTokens = explode('.', $parameter);
-                $this->addToProperties($properties,  $nameTokens, $parameterRules);
 
-                if ($this->isParameterRequired($parameterRules)) {
-                    $required[] = $parameter;
-                }
-            } catch (TypeError $e) {
-                $ruleStr = json_encode($rule);
-                throw new Exception("Rule `$parameter => $ruleStr` is not well formated", 0, $e);
+            $parameterRules = $this->splitRules($rule);
+            $nameTokens = explode('.', $parameter);
+            $this->addToProperties($properties,  $nameTokens, $parameterRules);
+
+            if ($this->isParameterRequired($parameterRules)) {
+                $required[] = $parameter;
             }
         }
+
 
         if (\count($required) > 0) {
             Arr::set($schema, 'required', $required);
@@ -70,6 +67,7 @@ class BodyParametersGenerator implements ParametersGenerator {
                 $mediaType = 'multipart/form-data';
             }
         }
+
 
 
         return [
@@ -123,8 +121,9 @@ class BodyParametersGenerator implements ParametersGenerator {
             Arr::set($properties, $name . '.type', $type);
         }
 
+
         if ($type === 'array') {
-            $this->addToProperties($properties[$name]['items'], $nameTokens, $rules);
+            $this->addToProperties($properties[$name]['properties'], $nameTokens, $rules);
         } else if ($type === 'object' && isset($properties[$name]['properties'])) {
             $this->addToProperties($properties[$name]['properties'], $nameTokens, $rules);
         }
@@ -137,7 +136,7 @@ class BodyParametersGenerator implements ParametersGenerator {
      */
     protected function getNestedParameterType(array $nameTokens): string {
         if (current($nameTokens) === '*') {
-            return 'array';
+            return 'object';
         }
         return 'object';
     }
@@ -158,7 +157,7 @@ class BodyParametersGenerator implements ParametersGenerator {
         }
 
         if ($type === 'array') {
-            Arr::set($propertyObject, 'items', []);
+            Arr::set($propertyObject, 'properties', []);
         } else if ($type === 'object') {
             Arr::set($propertyObject, 'properties', []);
         }
@@ -166,4 +165,3 @@ class BodyParametersGenerator implements ParametersGenerator {
         return $propertyObject;
     }
 }
-
